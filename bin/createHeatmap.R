@@ -73,10 +73,46 @@ annoColors <- list(
 ## Create a basic heatmap##
 ################################################
 ################################################
-
+# To be safe, convert sampleData data frame into matrix
+heat_data <- as.matrix(sampleData)
+basic_map <- pheatmap(heat_data, 
+                      cluster_rows = T, 
+                      cluster_cols = T, 
+                      clustering_distance_rows = 'euclidean', # euclidean distance
+                      clustering_distance_cols = 'euclidean',
+                      clustering_method = 'ward.D', # clustering using ward.D method
+                      main = paste0("Gene Expression Heatmap for Project ", outprefix), # Title uses outprefix from script parameter
+                      show_rownames = T,
+                      show_colnames = T,
+                      filename = paste0("basic_heatmap_", outprefix, ".pdf"),
+                      width = 10,
+                      height = 12
+)
 
 ################################################
 ################################################
 ## Create a basic heatmap##
 ################################################
 ################################################
+# First calculate break values based on distribution in gene expression matrix
+breaks <- quantile(heat_data, probs = c(0, 0.5, 1))
+complex_map <- pheatmap(heat_data, 
+                        cluster_rows = T, 
+                        cluster_cols = T, 
+                        clustering_distance_rows = 'euclidean',
+                        clustering_distance_cols = 'euclidean',
+                        clustering_method = 'ward.D',
+                        main = paste0("Annotated Gene Expression Heatmap for Project ", outprefix),
+                        show_rownames = T,
+                        show_colnames = T,
+                        annotation_names_row = F, # Turn off annotation row names
+                        annotation_names_col = F, # Turn off annotation column names
+                        annotation_colors = annoColors, # Using colors for annnotation
+                        annotation_row = geneFunctions, # gene functions for row annotation 
+                        annotation_col = annoData, # annoData for column annotation (because of sample group info)
+                        legend_breaks = breaks,                     # Scale colors according to sample data distribution
+                        legend_labels = c("Low", "Medium", "High"), # Label legend breaks
+                        filename = paste0("complex_heatmap_", outprefix, ".pdf"),
+                        width = 10,
+                        height = 12
+)
